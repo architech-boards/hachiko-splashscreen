@@ -8,6 +8,7 @@ cd ..
 ROOT_DIRECTORY=`pwd`
 BASEROOT_SDK=${ROOT_DIRECTORY}
 NR_CPUS=`grep -c ^processor /proc/cpuinfo`
+DEFAULT_MACHINE="hachiko"
 WGET_TIMEOUT=5
 
 ###########################################################################################################
@@ -26,7 +27,7 @@ mkdir -p ${YOCTO_DIRECTORY}
 cd ${YOCTO_DIRECTORY}
 if [ ! -d .repo ]
 then
-    repo init -u https://github.com/architech-boards/tibidabo-manifest.git -b dora -m manifest.xml
+    repo init -u https://github.com/architech-boards/hachiko-manifest.git -b dora -m manifest.xml
     [ $? -eq 0 ] || { rm -rf .repo; internet_error; }
 fi
 repo sync
@@ -65,9 +66,12 @@ fi
 if [ -n "`grep "^MACHINE" conf/local.conf`" ]
 then
     MATCH_LINE=`grep "^MACHINE" conf/local.conf`
-    sed -i "s|^${MATCH_LINE}|MACHINE ??= \"tibidabo\"|g" conf/local.conf
+    if [ -z "`echo $MATCH_LINE | grep hachiko`" ]
+    then
+        sed -i "s|^${MATCH_LINE}|MACHINE ??= \"${DEFAULT_MACHINE}\"|g" conf/local.conf
+    fi
 else
-    echo "MACHINE ??= \"tibidabo\"" >> conf/local.conf
+    echo "MACHINE ??= \"${DEFAULT_MACHINE}\"" >> conf/local.conf
 fi
 
 if [ -n "`grep "^PACKAGE_CLASSES" conf/local.conf`" ]
@@ -78,19 +82,11 @@ else
     echo "PACKAGE_CLASSES ?= \"package_ipk\"" >> conf/local.conf
 fi
 
-if [ -n "`grep "^ACCEPT_FSL_EULA" conf/local.conf`" ]
-then
-    MATCH_LINE=`grep "^ACCEPT_FSL_EULA" conf/local.conf`
-    sed -i "s|^${MATCH_LINE}|ACCEPT_FSL_EULA = \"1\"|g" conf/local.conf
-else
-    echo "ACCEPT_FSL_EULA = \"1\"" >> conf/local.conf
-fi
-
 ###########################################################################################################
 # conf/bblayers.conf customization
 
 cd ${ROOT_DIRECTORY}/yocto/build
-TO_MATCH="poky/meta poky/meta-yocto poky/meta-yocto-bsp meta-openembedded/meta-initramfs meta-tibidabo meta-fsl-arm"
+TO_MATCH="poky/meta poky/meta-yocto poky/meta-yocto-bsp meta-hachiko"
 BBLAYERS=""
 BBLAYERS_FOUND=`sed -n "/^BBLAYERS /,/\"/ p" conf/bblayers.conf | sed "s|BBLAYERS||g" | sed "s|?||g" | sed "s|=||g" | sed "s|\"||g" | sed "s|\n||g" | sed "s|\\\\\\||g"`
 
@@ -140,7 +136,7 @@ cd ${ROOT_DIRECTORY}
 rm -rf temp
 mkdir -p temp
 cd temp
-wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/tibidabo/toolchain/dora/toolchain.txt
+wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/hachiko/toolchain/dora/toolchain.txt
 [ $? -eq 0 ] || { cd ..; rm -rf temp; internet_error; }
 TOOLCHAIN_TARBALL=`cat toolchain.txt | awk -F" " '{print $1}'`
 TOOLCHAIN_MD5=`cat toolchain.txt | awk -F" " '{print $2}'`
@@ -156,7 +152,7 @@ fi
 
 if [ "${INSTALL_TOOLCHAIN}" == "yes" ]
 then
-    wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/tibidabo/toolchain/dora/${TOOLCHAIN_TARBALL}.tar.gz
+    wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/hachiko/toolchain/dora/${TOOLCHAIN_TARBALL}.tar.gz
     [ $? -eq 0 ] || { cd ..; rm -rf temp; internet_error; }
     sync
     DOWNLOAD_MD5=`md5sum ${TOOLCHAIN_TARBALL}.tar.gz | awk -F" " '{print $1}'`
@@ -204,7 +200,7 @@ install_file()
 	[ $? -eq 0 ] || { rm -f $FILE; undo_backup $CMD; rm sdk.txt; internet_error; }
 	mkdir $CMD
 	tar -zxf $FILE -C $CMD
-    	find ${CMD} -type f -exec sed -i "s|@BASEROOT_SDK@|${BASEROOT_SDK}|g" '{}' \;
+	find ${CMD} -type f -exec sed -i "s|@BASEROOT_SDK@|${BASEROOT_SDK}|g" '{}' \;
 	[ $? -eq 0 ] || { rm -f $FILE; undo_backup $CMD; rm sdk.txt; internet_error; }
 	rm -f $FILE
 }
@@ -229,7 +225,7 @@ killall qtcreator
 
 # dowload script file to know what to do
 rm -f sdk.txt
-wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/tibidabo/sdk/dora/sdk.txt
+wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/hachiko/sdk/dora/sdk.txt
 [ $? -eq 0 ] || { rm sdk.txt; internet_error; }
 
 while read LINE; do
@@ -280,10 +276,10 @@ while read LINE; do
 					rm -f $FILE
 					;;
 				"qt-arm")
-                    install_qt_local_libraries
-                    ;;
+					install_qt_local_libraries
+					;;
 				"qt-x86")
-                    install_qt_local_libraries
+					install_qt_local_libraries
 					;;
 				"qtcreator")
 					install_file
@@ -298,7 +294,7 @@ while read LINE; do
 					wget --timeout=${WGET_TIMEOUT} $URL
 					[ $? -eq 0 ] || { undo_backup "qtcreator/conf"; rm sdk.txt; internet_error; }
 					tar -zxf $FILE -C qtcreator/
-                    			find qtcreator/ -type f -exec sed -i "s|@BASEROOT_SDK@|${BASEROOT_SDK}|g" '{}' \;
+					find qtcreator/ -type f -exec sed -i "s|@BASEROOT_SDK@|${BASEROOT_SDK}|g" '{}' \;
 					rm -f $FILE
 					mkdir -p ${ROOT_DIRECTORY}/workspace/qt
                     ;;
@@ -318,7 +314,7 @@ while read LINE; do
 					CONF=`echo $LINE | awk -F"@" '{print $3}'`
 					do_backup "workspace"
 					rm -f $CONF
-					wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/tibidabo/sdk/dora/$CONF
+					wget --timeout=${WGET_TIMEOUT} http://downloads.architechboards.com/hachiko/sdk/dora/$CONF
 					[ $? -eq 0 ] || { undo_backup "workspace"; rm sdk.txt; internet_error; }
 					sed -i "s|@BASEROOT_SDK@|${BASEROOT_SDK}|g" $CONF
 					mkdir -p $PATH_CONF > /dev/null 2>&1
