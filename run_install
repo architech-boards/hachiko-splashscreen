@@ -8,7 +8,7 @@ cd ..
 ROOT_DIRECTORY=`pwd`
 BASEROOT_SDK=${ROOT_DIRECTORY}
 NR_CPUS=`grep -c ^processor /proc/cpuinfo`
-DEFAULT_MACHINE="hachiko"
+DEFAULT_MACHINE="hachiko64"
 WGET_TIMEOUT=5
 
 ###########################################################################################################
@@ -66,10 +66,7 @@ fi
 if [ -n "`grep "^MACHINE" conf/local.conf`" ]
 then
     MATCH_LINE=`grep "^MACHINE" conf/local.conf`
-    if [ -z "`echo $MATCH_LINE | grep hachiko`" ]
-    then
-        sed -i "s|^${MATCH_LINE}|MACHINE ??= \"${DEFAULT_MACHINE}\"|g" conf/local.conf
-    fi
+    sed -i "s|^${MATCH_LINE}|MACHINE ??= \"${DEFAULT_MACHINE}\"|g" conf/local.conf
 else
     echo "MACHINE ??= \"${DEFAULT_MACHINE}\"" >> conf/local.conf
 fi
