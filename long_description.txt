@@ -21,9 +21,7 @@
     }
 </style>
 ArchiTech's <b>Hachiko</b> board is a deeply embedded board.<br>
-It's best feature is its capability to run Linux using only the internal ram.
-For greater memory requirements, the board can mount external RAM memory and the processor
-can use both the internal and the external memories, in which case the internal memory will be used by the frame buffer driver.
+This SDK addresses the configuration with 64MB of external RAM mounted on the board.
 <br>
 Specifications:
 <table class="TFtable">
@@ -41,7 +39,7 @@ Specifications:
         </td>
         <td>
             10MB of internal SRAM<br>
-            external DRAM socket
+            and 64MB of external RAM
         </td>
     </tr>
     <tr>
@@ -66,7 +64,7 @@ Specifications:
             <b>Flash memory</b>
         </td>
         <td>
-            
+	    Two Quad SPI NOR chips, for a total size of 128MB.
         </td>
     </tr>
     <tr>
