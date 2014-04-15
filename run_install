@@ -50,7 +50,6 @@ function get_remote_version {
 	debecho "remote last version of ${1} is ${REMOTE_VERSION}"
 }
 
-
 ###########################################################################################################
 # Script pre-install
 
