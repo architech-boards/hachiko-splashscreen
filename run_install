@@ -22,7 +22,7 @@ then
 	[ $? -eq 0 ] || { message_fail_libsh; exit 1; }
 fi
 cd libsh
-#git pull
+git pull
 [ $? -eq 0 ] || { message_fail_libsh; exit 1; }
 source lib.sh
 cd ..
