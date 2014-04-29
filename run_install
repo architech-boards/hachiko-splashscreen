@@ -110,7 +110,7 @@ fi
 # conf/bblayers.conf customization
 
 cd ${ROOT_DIRECTORY}/yocto/build
-TTO_MATCH="poky/meta poky/meta-yocto poky/meta-yocto-bsp meta-hachiko"O_MATCH="poky/meta poky/meta-yocto poky/meta-yocto-bsp meta-hachiko"
+TO_MATCH="poky/meta poky/meta-yocto poky/meta-yocto-bsp meta-hachiko"
 BBLAYERS=""
 BBLAYERS_FOUND=`sed -n "/^BBLAYERS /,/\"/ p" conf/bblayers.conf | sed "s|BBLAYERS||g" | sed "s|?||g" | sed "s|=||g" | sed "s|\"||g" | sed "s|\n||g" | sed "s|\\\\\\||g"`
 
